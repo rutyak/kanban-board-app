@@ -1,19 +1,21 @@
 const { Column } = require("../model/dashboardSchema");
+const mongoose = require("mongoose");
 
-const deleteController = (Model) => {
-
-  console.log("column delete cliked: ");
-  
+const deleteColumnController = (Model) => {
   return async (req, res) => {
     const { id } = req.params;
 
-    console.log("useID: ", id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid column ID" });
+    }
 
     try {
-      const deletedUser = await Model.findByIdAndDelete(id);
-      if (!deletedUser) {
-        return res.status(404).json({ message: "User not found" });
+      const deletedColumn = await Model.findByIdAndDelete(id);
+
+      if (!deletedColumn) {
+        return res.status(404).json({ message: "Column not found" });
       }
+
       res.status(200).json({ message: "Column deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -25,8 +27,8 @@ const deleteTaskController = (Model) => {
   return async (req, res) => {
     const { columnId, taskId } = req.params;
 
-    console.log("columnId, taskId", columnId, taskId);
-
+    console.log("columnId, taskId",columnId, taskId);
+    
     try {
       const column = await Column.findById(columnId);
 
@@ -35,8 +37,12 @@ const deleteTaskController = (Model) => {
       }
 
       const updatedTasks = column.tasks.filter(
-        (task) => task.id.toString() !== taskId
+        (task) => task._id.toString() !== taskId
       );
+
+      if (updatedTasks.length === column.tasks.length) {
+        return res.status(404).json({ message: "Task not found in column" });
+      }
 
       column.tasks = updatedTasks;
       await column.save();
@@ -50,4 +56,4 @@ const deleteTaskController = (Model) => {
   };
 };
 
-module.exports = { deleteController, deleteTaskController };
+module.exports = { deleteColumnController, deleteTaskController };
