@@ -3,8 +3,8 @@ const router = express.Router();
 const { Column } = require('../model/dashboardSchema');
 const fetchController = require('../controller/fetchController');
 const updateController = require('../controller/updateController');
-const { deleteController } = require('../controller/deleteController');
 const { createColumnController } = require('../controller/createController');
+const { deleteController } = require('../controller/deleteController');
 
 router.get('/columns', fetchController(Column)); 
 
